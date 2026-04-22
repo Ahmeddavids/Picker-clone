@@ -189,7 +189,7 @@ exports.uploadProduct = async(req, res) => {
     try {
        const { id } = req.user
         
-        const { categoryId, menuName, menuDescription, amount, menuImage } = req.body;
+        const { category, menuName, menuDescription, amount, menuImage } = req.body;
         cloudinary.config({
             cloud_name: process.env.API_CLOUDNAME,
             api_secret: process.env.API_SECRET,
@@ -204,7 +204,7 @@ exports.uploadProduct = async(req, res) => {
         }
         const createProduct = await menuModel.create({
             restaurantId: id,
-            categoryId, 
+            category, 
             menuName, 
             menuDescription, 
             amount,
@@ -223,24 +223,52 @@ exports.uploadProduct = async(req, res) => {
     }
 };
  
-exports.createCategory = async (req, res) => {
+// exports.createCategory = async (req, res) => {
+//     try {
+//         const { name } = req.body;
+
+//         const category = await categoryModel.create({
+//             name
+//         })
+
+//         res.status(201).json({
+//             message: 'category created successfully',
+//             category
+//         })
+//     } catch (error) {
+//         res.status(500).json({
+//             message: error.message
+//         })
+//     }
+// };
+
+exports.getAllMenu = async (req, res) => {
     try {
-        const { name } = req.body;
+        const { id } = req.user;
+        const restaurant = await restaurantModel.findById(id);
 
-        const category = await categoryModel.create({
-            name
-        })
+        if (!restaurant) {
+            return res.status(404).json({
+                message: 'Restaurant not found'
+            })
+        };
 
-        res.status(201).json({
-            message: 'category created successfully',
-            category
+        const menus = await menuModel.find({
+            restaurantId: restaurant._id
+        });
+        const categories = [...new Set(menus.map(e => e.category))];
+
+        res.status(200).json({
+            message: 'All menus',
+            menus,
+            categories
         })
     } catch (error) {
         res.status(500).json({
-            message: error.message
-        })
+             message: error.message
+         })
     }
-};
+}
 
 exports.deletemenu = async (req, res) => {
     try {

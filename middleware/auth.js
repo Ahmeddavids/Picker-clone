@@ -15,7 +15,7 @@ exports.authenticate = async (req, res, next) => {
         // console.log(token)
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
 
-        const user = await restaurantModel.findById(decodedToken.id)
+        const user = await restaurantModel.findById(decodedToken.id) || await userModel.findById(decodedToken.id)
         if (!user) {
             return res.status(404).json({
                 message: "Authentication failed: User not found"
@@ -28,6 +28,11 @@ exports.authenticate = async (req, res, next) => {
 
 
     } catch (error) {
+        if (error instanceof jwt.JsonWebTokenError) {
+            return res.status(401).json({
+                message: 'Session expired, Login to continue'
+            })
+        }
         res.status(500).json({
             message: error.message
         })

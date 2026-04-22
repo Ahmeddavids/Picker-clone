@@ -1,6 +1,6 @@
 const multer = require('multer');
 
-const { registerRestaurant, verifyRestaurantEmail, resendRestaurantOTP, loginRestaurant, uploadProduct, createCategory, deletemenu } = require('../controller/restaurant');
+const { registerRestaurant, verifyRestaurantEmail, resendRestaurantOTP, loginRestaurant, uploadProduct, deletemenu, getAllMenu } = require('../controller/restaurant');
 const { authenticate, checkAdmin } = require('../middleware/auth');
 
 const router = require('express').Router();
@@ -20,7 +20,7 @@ const upload = multer(
 )
 router.post('/menu', authenticate, upload.single('image') , uploadProduct);
 
-router.post('/category', createCategory)
+router.get('/menus', authenticate, getAllMenu)
 
 router.delete('/menus/:id', checkAdmin, deletemenu)
 

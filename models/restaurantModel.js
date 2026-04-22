@@ -33,7 +33,7 @@ const restaurantSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        defaultValue: 'restaurant'
+        default: 'restaurant'
     }
 }, {timeStamps: true});
 

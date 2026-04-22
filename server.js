@@ -4,6 +4,7 @@ const PORT = process.env.PORT || 5945;
 require('./database/database');
 const userRouter = require('./routes/userRouter')
 const restaurantRouter = require('./routes/restaurant')
+const orderRouter = require('./routes/order')
 const facebookRoute = require('./routes/facebook')
 const expressSession = require('express-session')
 const passport = require('passport');
@@ -20,6 +21,7 @@ app.use(passport.session())
 app.use('/api/user',userRouter);
 app.use('/api/users',facebookRoute);
 app.use('/api/restaurant', restaurantRouter);
+app.use('/api', orderRouter);
 
 
 const mongoose = require('mongoose');

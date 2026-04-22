@@ -26,14 +26,10 @@ router.get('/loginfailed', (req, res) => {
     })  
     
 
-router.get('/githubLogin', passport.authenticate('github2', { scope: ['user:email'] }));
+router.get('/githubLogin', passport.authenticate('github2'));
 
-router.get('/githubLogin/callback',
-  passport.authenticate('github2', {
-    failureRedirect: '/login',
-    session: false
-  }),
-  (req, res) => {
+router.get('/githubLogin/callback',passport.authenticate('github2', {failureRedirect: '/login',session: false}),
+  (req, res)  => {
     res.json({message:"GitHub login successful", data:req.user});
   }
 );

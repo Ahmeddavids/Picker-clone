@@ -17,8 +17,8 @@ const menuSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
-    categoryId: {
-        type: mongoose.Schema.Types.ObjectId,
+    category: {
+        type: String,
         required: true
     },
     isAvailable: {

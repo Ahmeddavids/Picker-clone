@@ -124,3 +124,5 @@ mongoose.connect(process.env.MONGODB_URI)
         console.log(error.message);
 
     })
+
+    module.exports = app;

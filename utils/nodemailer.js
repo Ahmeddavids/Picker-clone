@@ -10,7 +10,7 @@ const transporter = nodemailer.createTransport({
         pass: process.env.SMTP_PASS,
     },
 });
-console.log(transporter)
+// console.log(transporter)
 
 const sendMail = async (options) => {
     try {

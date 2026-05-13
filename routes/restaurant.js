@@ -15,10 +15,10 @@ router.post('/login', loginRestaurant);
 
 const upload = multer(
     {
-        dest: '/upload'
+        // dest: '/upload'
     }
 )
-router.post('/menu', authenticate, upload.single('image') , uploadProduct);
+router.post('/menu', authenticate, upload.single('image'), uploadProduct);
 
 router.get('/menus', authenticate, getAllMenu)
 

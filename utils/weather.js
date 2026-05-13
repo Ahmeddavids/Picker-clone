@@ -2,7 +2,7 @@ const weatherModel = require('../models/weather')
 const axios = require("axios")
 require('dotenv').config()
 
-exports.userWeather = async (req, res) => {
+exports.userWeather = async (req, res, next) => {
     try {
        const rawIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress
 

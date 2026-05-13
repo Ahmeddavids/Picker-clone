@@ -12,6 +12,7 @@ exports.authenticate = async (req, res, next) => {
                 statusCode: 400
             })
         }
+        console.log(auth)
         const token = auth.split(' ')[1]
         // console.log(token)
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);

@@ -1,5 +1,6 @@
 const { register, verifyEmail, resendOTP, login, getAllUsers, getUserById } = require('../controller/userController');
-const passport = require('passport')
+const passport = require('passport');
+const rateLimiter = require('../middleware/rateLimiter');
 const router = require('express').Router();
 
 /**
@@ -126,7 +127,7 @@ router.post('/resend-otp', resendOTP);
  *                   description: A success message
  *                   example: User logged in successfully
  */
-router.post('/login', login);
+router.post('/login', rateLimiter, login);
 
 router.get('/collect', passport.authenticate('google', { scope: ['profile', 'email'] }))
 

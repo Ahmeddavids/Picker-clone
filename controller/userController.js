@@ -160,21 +160,39 @@ exports.login = async (req, res, next) => {
             })
         }
 
-        if (user.isVerified == false) {
+        // if (user.isVerified == false) {
+        //     return next({
+        //         message: `Please verify email`,
+        //         statusCode: 404
+        //     })
+        // }
+        // Check if account is locked due to too many failed login attempts
+        if ( user.lockUntil > Date.now()) {
             return next({
-                message: `Please verify email`,
-                statusCode: 404
+                message: `Account locked until ${user.lockUntil}`,
+                statusCode: 403
             })
         }
 
         const passwordCorrect = await bcrypt.compare(password, user.password);
 
         if (!passwordCorrect) {
+            // Increment login attempts and lock account if necessary
+            user.loginAttempts += 1;
+            if(user.loginAttempts >= 5) {
+                user.lockUntil = new Date(Date.now() + 2 * 60000);
+                user.loginAttempts = 0;
+            }
+            await user.save();
             return next({
                 message: `Invalid Credentials`,
                 statusCode: 400
             })
         }
+
+        // Reset login attempts on successful login
+        user.loginAttempts = 0;
+        await user.save();
 
         const token = await jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1day' });
 

@@ -15,6 +15,7 @@ require('./controller/facebook')
 require('./controller/github')
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
+const rateLimiter = require('./middleware/rateLimiter');
 
 
 const app = express();
@@ -22,6 +23,8 @@ app.use(express.json());
 app.use(expressSession({ secret: 'olachi', saveUninitialized: false, resave: false }))
 app.use(passport.initialize());
 app.use(passport.session())
+// Apply the rate limiter middleware Globally to all routes
+// app.use(rateLimiter);
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/restaurant', restaurantRouter);
 app.use('/api/v1/order', orderRouter);
@@ -111,6 +114,7 @@ app.use((err, req, res, next) => {
 
 
 const mongoose = require('mongoose');
+
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {

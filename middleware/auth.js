@@ -1,7 +1,8 @@
 // Import JWT 
 const jwt = require('jsonwebtoken');
 const restaurantModel = require('../models/restaurantModel');
-const userModel = require('../models/userModel')
+const userModel = require('../models/userModel');
+const redisClient = require('../config/redis');
 
 exports.authenticate = async (req, res, next) => {
     try {
@@ -12,10 +13,18 @@ exports.authenticate = async (req, res, next) => {
                 statusCode: 400
             })
         }
-        console.log(auth)
+   
         const token = auth.split(' ')[1]
         // console.log(token)
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+        // Check if token exists in Redis
+        const redisToken = await redisClient.get(`user:${decodedToken.id}`);
+        if (!redisToken || redisToken !== token) {
+            return next({
+                message: `Session expired, Login to continue`,
+                statusCode: 401
+            })
+        }
 
         const user = await restaurantModel.findById(decodedToken.id) || await userModel.findById(decodedToken.id)
         if (!user) {

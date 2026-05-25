@@ -1,6 +1,7 @@
-const { register, verifyEmail, resendOTP, login, getAllUsers, getUserById } = require('../controller/userController');
+const { register, verifyEmail, resendOTP, login, getAllUsers, getUserById, logout } = require('../controller/userController');
 const passport = require('passport');
 const rateLimiter = require('../middleware/rateLimiter');
+const { authenticate } = require('../middleware/auth');
 const router = require('express').Router();
 
 /**
@@ -187,7 +188,7 @@ router.get('/githubLogin/callback', passport.authenticate('github2', { failureRe
  *                   items:
  *                     $ref: '#/components/schemas/User'
  */
-router.get('/getAllUsers', getAllUsers);
+router.get('/getAllUsers', authenticate, getAllUsers);
 
 
 
@@ -231,6 +232,43 @@ router.get('/getAllUsers', getAllUsers);
  *                   example: User not found
 */
 router.get('/getone/:id', getUserById);
+
+
+// /**
+//  * @swagger * /api/v1/user/logout:
+//  *   post:
+//  *     tags:
+//  *       - User
+//  *     summary: User Logout
+//  *     description: Log out a user by invalidating their session token
+//  *     security:
+//  *       - bearerAuth: []
+//  *     responses:
+//  *       200:
+//  *         description: Logout successful
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 message:
+//  *                   type: string
+//  *                   description: A success message
+//  *                   example: Logout successful
+//  *       401:
+//  *         description: Unauthorized - Session expired or invalid token
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               type: object
+//  *               properties:
+//  *                 message:
+//  *                   type: string
+//  *                   description: A message indicating the session has expired or the token is invalid
+//  *                   example: Session expired, Login to continue
+//  */
+
+router.post('/logout', authenticate, logout);
 
 module.exports = router;
 // /**

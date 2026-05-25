@@ -3,7 +3,8 @@ const bcrypt = require('bcrypt');
 const sendMail = require('../utils/nodemailer');
 const otpGenerator = require('otp-generator');
 const { signUpTemplate } = require('../utils/emailTemplate');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const redisClient = require('../config/redis');
 
 exports.register = async (req, res, next) => {
     try {
@@ -195,6 +196,10 @@ exports.login = async (req, res, next) => {
         await user.save();
 
         const token = await jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1day' });
+        // Delete existing token in Redis to prevent multiple active sessions
+        redisClient.del(`user:${user._id}`);
+        // Store the token in Redis with an expiration time
+        redisClient.set(`user:${user._id}`, token, {EX: 86400})
 
         res.status(200).json({
             message: 'Login Successful',
@@ -233,6 +238,21 @@ exports.getUserById = async (req, res, next) => {
             message: 'User fetched successfully',
             user
         })
+    } catch (error) {
+        next(error);
+    }
+}
+
+exports.logout = (req, res, next) => {
+    try {
+        // Get the token from the Authorization header
+        const id = req.user.id
+        // Delete the token from Redis to invalidate it
+        redisClient.del(`user:${id}`);
+        // Send a success response
+        res.status(200).json({
+            message: 'Logout successful'
+        });
     } catch (error) {
         next(error);
     }

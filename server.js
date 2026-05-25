@@ -1,7 +1,7 @@
 const express = require('express');
 require('dotenv').config();
 const PORT = process.env.PORT || 5945;
-require('./database/database');
+require('./config/database');
 const userRouter = require('./routes/userRouter')
 const restaurantRouter = require('./routes/restaurant')
 const orderRouter = require('./routes/order')
@@ -16,13 +16,23 @@ require('./controller/github')
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsdoc = require('swagger-jsdoc');
 const rateLimiter = require('./middleware/rateLimiter');
+const cors = require('cors');
+const redisClient = require('./config/redis');
+const morgan = require('morgan');
 
 
 const app = express();
+// Allow CORS for all origins
+// app.use(cors({origin: '*'}));
+// All CORS for specic origins
+// app.use(cors({origin: 'http://localhost:3000'}));
+const allowedOrigins = ['http://localhost:3000', 'https://picker-frontend.onrender.com'];
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 app.use(expressSession({ secret: 'olachi', saveUninitialized: false, resave: false }))
 app.use(passport.initialize());
 app.use(passport.session())
+app.use(morgan('dev'));
 // Apply the rate limiter middleware Globally to all routes
 // app.use(rateLimiter);
 app.use('/api/v1/user', userRouter);
@@ -118,6 +128,13 @@ const mongoose = require('mongoose');
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
+        redisClient.connect()
+            .then(() => {
+                console.log('Connected to Redis successfully');
+            })
+            .catch((err) => {
+                console.error('Failed to connect to Redis', err);
+            });
         console.log('Database connected successfully');
         app.listen(PORT, () => {
             console.log(`Server listening to Port: ${PORT}`);
@@ -129,4 +146,4 @@ mongoose.connect(process.env.MONGODB_URI)
 
     })
 
-    module.exports = app;
+module.exports = app;
